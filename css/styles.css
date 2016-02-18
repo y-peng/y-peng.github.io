@@ -1,0 +1,40 @@
+body {
+  text-align: center;
+  background: url("https://media.giphy.com/media/RHpf4nRzaZrmE/giphy.gif");
+  background-size: cover;
+  background-position: center;
+  color: white;
+  font-family: sans-serif;
+}
+p {
+  font-size: 22px;
+}
+input {
+  border: 0;
+  padding: 10px;
+  font-size: 18px;
+}
+input[type="submit"] {
+  background: red;
+  color: white;
+}
+
+/* unvisited link */
+a:link {
+    color: cyan;
+}
+
+/* visited link */
+a:visited {
+    color: pink;
+}
+
+/* mouse over link */
+a:hover {
+    color: violet;
+}
+
+/* selected link */
+a:active {
+    color: green;
+}
