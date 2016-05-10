@@ -1,0 +1,146 @@
+<html>
+<head>
+	<title>Rock, Paper, Scissors</title>
+
+	<style type="text/css">
+
+		body{
+			background: url(img/rpswall.jpg);
+			background-size: cover;
+			background-position: center;
+			color: white;
+
+		}
+		html{
+			text-align: center;
+		}
+
+		div {
+			border: 1px hidden black;
+			height: 400px;
+			float: left;
+		}
+
+		#player, #computer {
+			width: 25%;
+		}
+
+		#board {
+			width: 50%;
+		}
+
+		#options {
+			height: 200px;
+		}
+
+		#options img {
+			width: 20%;
+		}
+
+		#player-image img, #computer-image img{
+			width: 90%;
+		}
+	</style>
+
+	<script type="text/javascript">
+		var playerImage = " ";
+		var randomNumber = " ";
+		var scoreText = " ";
+		var computerImage = " ";
+
+	var update = function (num) {
+		randomNumber = Math.floor( (Math.random() * 3 ) +1 );
+
+		// if number is one then return rock
+		if ( num == 1 ) {
+
+			playerImage = "rock.png";
+		}
+		else if (num ==2) {
+
+			playerImage = "pap.png";
+		}
+		else if (num== 3) {
+
+			playerImage = "cut.png";
+		}
+
+		if ( randomNumber == 1 ) {
+
+			computerImage = "rock.png";
+		}
+		else if (randomNumber ==2) {
+
+			computerImage = "pap.png";
+		}
+		else if (randomNumber== 3) {
+
+			computerImage = "cut.png";
+		}
+
+			//compare numbers
+			if( num == randomNumber) {
+				//Tie Game
+				scoreText = "tie game";
+		}
+		else if ( num ==1 && randomNumber==2) {
+			scoreText = "computer wins";
+		}
+		else if ( num==1 && randomNumber==3) {
+			scoreText = "player wins";
+		}
+		else if ( num==2 && randomNumber==1) {
+			scoreText = "player wins";
+		}
+		else if ( num==2 && randomNumber==3) {
+			scoreText = "computer wins";
+		}
+		else if ( num==3 && randomNumber==1) {
+			scoreText = "computer wins";
+		}
+		else if ( num==3 && randomNumber==2) {
+			scoreText = "player wins";
+		}
+		//outout rock
+		// document.getElementById("result").innerHTML = playerImage;
+		document.getElementById("cNum").innerHTML = ' <img src="img/' +computerImage+ '">';
+		document.getElementById("scoreText").innerHTML = scoreText;
+		document.getElementById("playerImage").innerHTML = ' <img src="img/' +playerImage+ '">';
+	}
+	</script>
+</head>
+<body>
+
+	<h1>Rock, Paper, Scissors</h1>
+	<h3>Can You Win?</h3>
+
+	<div id="player">
+		<p>Player</p>
+		<p id="playerImage">
+		<!---this is where the image will go-->
+	</div>
+
+	<div id="board">
+		<p>Board</p>
+		<p id="scoreText"></p>
+
+			<p id="options">
+
+			<!-- 1 is rock-->
+			<a href="#" Onclick="update(1);"><img src="img/rock.png"></a>
+			<!-- 2 is paper -->
+			<a href="#" Onclick="update(2)"><img src="img/pap.png"></a>
+			<!-- 3 is scissors -->
+			<a href="#" Onclick="update(3)"><img src="img/cut.png"></a>
+			</p>
+
+	</div>
+
+	<!-- computer -->
+	<div id="computer">
+		<p>Computer</p>
+		<p id="cNum"></p>
+
+	</div>
+</body>
+</html>
