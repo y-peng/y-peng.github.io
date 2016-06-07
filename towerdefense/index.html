@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, maximum-scale=1.0, user-scalable=no" />
+        <title>FBI Tower Defense</title>
+        <link rel="stylesheet" href="/css/styles.css" media="screen" title="no title" charset="utf-8">
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/phaser/2.4.8/phaser.min.js"></script>
+        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+    </head>
+    <body>
+      <h1>FBI Tower Defense</h1>
+      <p>Defend your iPhone data from the FBI!</p>
+      <audio id="audiotag1" src="assets/audio/shoot.wav" preload="auto"></audio>
+    <script type="text/javascript">
+        var bulletTime = 0;
+        var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', {preload: preload, create: create, update: update, render: render});
+        var tileSquare = 32;
+        var map, layer;
+        var tileForbiden = ["9", "10", "111", "112", "211", "212", "311", "312", "411", "412", "511", "512", "510", "59", "58", "68", "78", "88", "98", "108", "118", "128", "138", "139", "1310", "1311", "1312", "1313", "1314", "1315", "1316", "1416", "1516", "1616", "1716", "1816", "1916", "2016", "2116", "2115", "2114", "2113", "2213", "2313", "2413", "2513"]
+        var path = [{x: 0, y: 12}, {x: 1, y: 12}, {x: 2, y: 12}, {x: 3, y: 12}, {x: 4, y: 12}, {x: 5, y: 12}, {x: 5, y: 11}, {x: 5, y: 10}, {x: 5, y: 9}, {x: 5, y: 8}, {x: 6, y: 8}, {x: 7, y: 8}, {x: 8, y: 8}, {x: 9, y: 8}, {x: 10, y: 8}, {x: 11, y: 8}, {x: 12, y: 8}, {x: 13, y: 8},
+            {x: 13, y: 9}, {x: 13, y: 10}, {x: 13, y: 11}, {x: 13, y: 12}, {x: 13, y: 13}, {x: 13, y: 14}, {x: 13, y: 15}, {x: 13, y: 16}, {x: 14, y: 16}, {x: 15, y: 16}, {x: 16, y: 16}, {x: 17, y: 16}, {x: 18, y: 16}, {x: 19, y: 16}, {x: 20, y: 16}, {x: 21, y: 16}, {x: 21, y: 15},
+            {x: 21, y: 14}, {x: 21, y: 13}, {x: 22, y: 13}, {x: 23, y: 13}, {x: 24, y: 13}, {x: 25, y: 13}];
+        var enemysAnimation = [{'name': 'panda', 'length': 3}, {'name': 'duck', 'length': 8}];
+        var car, car2, duck;
+        var towers;
+        var canAddTower = true;
+        var bulletsTowers, explosions, cursors, fireButton;
+        var towrSound;
+        function preload() {
+            game.load.tilemap('desert', 'assets/maps/tower-defense.json', null, Phaser.Tilemap.TILED_JSON);
+            game.load.image('tiles', 'assets/maps/map2.png');
+            game.load.image('car', 'assets/sprites/car90.png');
+
+            game.load.image('tower', 'assets/sprites/apple gun.png');
+            game.load.image('bullet', 'assets/sprites/shot.png');
+
+            game.load.audio('bgm', 'assets/audio/sci-fi.mp3');
+            game.load.audio('sfx', 'assets/audio/grunt.wav');
+          towerSound =  game.load.audio('bam', 'assets/audio/shoot.wav');
+            /*
+             * Enemy Preload
+             */
+            game.load.spritesheet('duck', 'assets/sprites/fbi2.png', 32, 32, 8);
+            game.load.spritesheet('panda', 'assets/sprites/fbi giy1.png', 32, 32, 3);
+            // game.load.spritesheet('dog', 'assets/sprites/dog.png', 32, 32, 6);
+            // game.load.spritesheet('penguin', 'assets/sprites/penguin.png', 32, 32, 4);
+        }
+
+
+        function create() {
+
+            music = game.add.audio('bgm');
+            music.loop = true;
+            music.play();
+
+            /**
+             * Init map
+             */
+            game.physics.startSystem(Phaser.Physics.ARCADE)
+            map = game.add.tilemap('desert');
+            map.addTilesetImage('Desert', 'tiles');
+            layer = map.createLayer('Ground');
+            layer.resizeWorld();
+            //game.input.onDown.add(listener, this);
+            /*
+             * Tower
+             */
+
+            towers = game.add.group();
+            game.physics.enable(towers, Phaser.Physics.ARCADE);
+            /*
+             * Towers Bullets
+             */
+            bullets = game.add.group();
+            bullets.enableBody = true;
+            bullets.physicsBodyType = Phaser.Physics.ARCADE;
+            bullets.createMultiple(30, 'bullet');
+            bullets.setAll('anchor.x', 0.5);
+            bullets.setAll('anchor.y', 1);
+            bullets.setAll('outOfBoundsKill', true);
+            bullets.setAll('checkWorldBounds', true);
+
+            /*
+             * Enemy
+             */
+            enemys = game.add.group();
+            enemys.enableBody = true;
+            enemys.physicsBodyType = Phaser.Physics.ARCADE;
+
+            generateEnemy();
+
+
+            var text = "+ Enemy";
+            var style = {font: "15px Arial", fill: "#ff0044", align: "center"};
+            var t = game.add.text(700, 20, text, style);
+            t.tint = "#000";
+            t.inputEnabled = true;
+            t.events.onInputDown.add(generateEnemy, this);
+            var text = "+ Tower";
+            var loseText = "They found your Selfies!!!"
+            var style = {font: "15px Arial", fill: "#ff0044", align: "center"};
+            var t = game.add.text(700, 40, text, style);
+            t.tint = "#000";
+            t.inputEnabled = true;
+            t.events.onInputDown.add(Tower.prototype.add(), this);
+
+        }
+        function render() {
+
+        }
+        function update() {
+            /*
+             * Generate Enemy
+             */
+            enemys.forEach(function(enemy) {
+                Enemy.prototype.moveElmt(enemy);
+                if ( enemy.x >= 'undefined'){
+                  game.add.text(700, 140, loseText, style);
+                  console.log("hi");
+                }
+
+            });
+            /*
+             * ower fire
+             */
+            towers.forEach(function(tower) {
+                Tower.prototype.fire(tower);
+
+            });
+            //  Run collision
+            game.physics.arcade.overlap(bullets, enemys, collisionHandler, null, this);
+            if (enemysAnimation.x >= 50){
+              console.log("hi");
+              game.add.text(700, 40, loseText, style);
+            }
+        }
+        function listener(pointer) {
+            if (canAddTower) {
+                /*
+                 * Add tower
+                 */
+                Tower.prototype.add(pointer);
+            }
+        }
+        function collisionHandler(bullet, enemy) {
+            bullet.kill();
+            enemy.destroy();
+            sound = game.add.audio('sfx');
+
+            sound.play();
+        }
+
+        function generateEnemy() {
+            var i = 0;
+            var enemysBcl = setInterval(function() {
+                if (i < 5) {
+                    var animEnemy = enemysAnimation[parseInt(Math.random() * enemysAnimation.length)];
+                    new Enemy(path[0].x * tileSquare, path[0].y * tileSquare, animEnemy.name, animEnemy.length);
+                } else {
+                    clearTimeout(enemysBcl);
+                }
+                i++;
+            }, 1000);
+        }
+    </script>
+    <script type="text/javascript" src="js/Tower.class.js"></script>
+  <script type="text/javascript" src="js/Enemy.class.js"></script>
+
+      </body>
+</html>
